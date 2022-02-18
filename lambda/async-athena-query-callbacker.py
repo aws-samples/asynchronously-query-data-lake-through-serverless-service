@@ -29,17 +29,18 @@ def lambda_handler(event, context):
     
     print('s3 presign url for downloading query result: ')
     
-    presigned_url=create_presigned_url(bucket,object)
+    presignedUrl_expiration_time=3600
+    presigned_url=create_presigned_url(bucket,object,presignedUrl_expiration_time)
     
     print(presigned_url)
     
     response={}
-    # response['statusCode']=200
+
     response['Status']=status
     tmp={}
     response['QueryResult']=tmp
     response['QueryResult']['PresignedUrl']=presigned_url
-    response['QueryResult']['ExpiredIn']=3600
+    response['QueryResult']['ExpiredIn']=presignedUrl_expiration_time
     print(response)
     
     r = requests.post(callback_url, data=json.dumps(response))
@@ -47,7 +48,7 @@ def lambda_handler(event, context):
     
     return response
 
-def create_presigned_url(bucket_name, object_name, expiration=3600):
+def create_presigned_url(bucket_name, object_name, expiration):
     """Generate a presigned URL to share an S3 object
 
     :param bucket_name: string
