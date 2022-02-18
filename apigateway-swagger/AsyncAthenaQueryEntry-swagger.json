@@ -1,0 +1,46 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "version" : "2022-02-15T15:18:13Z",
+    "title" : "AsyncAthenaQueryEntry"
+  },
+  "basePath" : "/live",
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/invocation" : {
+      "post" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws",
+          "credentials" : "<your-execution-role>",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:us-east-1:states:action/StartExecution",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "#set($inputRoot = $input.path('$'))\n{\n  \"stateMachineArn\":\"<your-state-machine-arn>\",\n    \"input\": \"{\\\"ApiRequest\\\" : {\\\"Query\\\": $util.escapeJavaScript($input.json('$.Query')),\\\"CallbackUrl\\\": $util.escapeJavaScript($input.json('$.CallbackUrl'))}}\"\n}"
+          },
+          "passthroughBehavior" : "when_no_templates"
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "Empty" : {
+      "type" : "object",
+      "title" : "Empty Schema"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Athena StartQueryExecution",
+  "States": {
+    "Athena StartQueryExecution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::athena:startQueryExecution",
+      "Parameters": {
+        "QueryString.$": "$.Query",
+        "WorkGroup": "primary"
+      },
+      "Next": "Wait (1)",
+      "ResultSelector": {
+        "QueryExecutionId.$": "$.QueryExecutionId"
+      },
+      "ResultPath": "$.AthenaRequest",
+      "InputPath": "$.ApiRequest"
+    },
+    "Athena GetQueryExecution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::athena:getQueryExecution",
+      "Parameters": {
+        "QueryExecutionId.$": "$.QueryExecutionId"
+      },
+      "ResultSelector": {
+        "QueryExecution.$": "$.QueryExecution"
+      },
+      "Next": "Choice",
+      "InputPath": "$.AthenaRequest",
+      "ResultPath": "$.AthenaResult"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Or": [
+            {
+              "Variable": "$.AthenaResult.QueryExecution.Status.State",
+              "StringEquals": "SUCCEEDED"
+            },
+            {
+              "Variable": "$.AthenaResult.QueryExecution.Status.State",
+              "StringEquals": "FAILED"
+            },
+            {
+              "Variable": "$.AthenaResult.QueryExecution.Status.State",
+              "StringEquals": "CANCELLED"
+            }
+          ],
+          "Next": "Lambda Invoke"
+        }
+      ],
+      "Default": "Wait (1)"
+    },
+    "Wait (1)": {
+      "Type": "Wait",
+      "Seconds": 15,
+      "Next": "Athena GetQueryExecution"
+    },
+    "Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "<your-lambda-function-arn>:$LATEST"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  },
+  "TimeoutSeconds": 1800
+}
