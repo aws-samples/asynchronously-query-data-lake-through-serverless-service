@@ -1,6 +1,4 @@
 import json
-# import os
-# print(os.listdir('/opt/'))
 import requests
 import boto3
 from botocore.exceptions import ClientError
@@ -15,8 +13,6 @@ def lambda_handler(event, context):
     callback_url=event['ApiRequest']['CallbackUrl']
     file=event['AthenaResult']['QueryExecution']['ResultConfiguration']['OutputLocation']
     status=event['AthenaResult']['QueryExecution']['Status']
-    # b=s3://async-athena-query/athena-query-result/a5dee61b-379e-4740-a05a-54df15383679.csv
-    # b.split('/') => ['s3:', '', 'async-athena-query', 'athena-query-result', 'a5dee61b-379e-4740-a05a-54df15383679.csv']
     
     obj_array=file.split('/')
     bucket=file.split('/')[2]
@@ -46,12 +42,8 @@ def lambda_handler(event, context):
     response['QueryResult']['ExpiredIn']=3600
     print(response)
     
-    # payload_str = urllib.parse.urlencode(response, safe=':/?+%=&')
-    
-    # r = requests.post(callback_url, data=payload_str)
-    
     r = requests.post(callback_url, data=json.dumps(response))
-    print(r)
+    print(r.status_code)
     
     return response
 
