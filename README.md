@@ -1,12 +1,12 @@
 ## Asynchronously Query Data Lake through Serverless Service
-In this sampel we will show you how to query your data lake through serverless service which includes Step Function and Lambda. 
+In this sample we will show you how to query your data lake through serverless service which includes Step Function and Lambda. 
 
 ![image1](https://user-images.githubusercontent.com/17841922/154645497-401d4933-d70e-4e72-93f8-65655a9ba078.png)
 1. User send request to API Gateway and trigger StepFunction to orchestrate Athena to query and check result is ready
     * The request might look like:
     ```
     {
-        "Query": "SELECT \"col1\", \"col2\" FROM \"tableA\" limit 10",
+        "Query": "SELECT \"col1\", \"col2\" FROM \"database1\".\"tableA\" limit 10",
         "CallbackUrl": "https://test.api"
     }
     ```
@@ -105,7 +105,6 @@ You can follow the guide as following:
         "Version": "2012-10-17",
         "Statement": [
             {
-                "Sid": "",
                 "Effect": "Allow",
                 "Principal": {
                     "Service": "apigateway.amazonaws.com"
