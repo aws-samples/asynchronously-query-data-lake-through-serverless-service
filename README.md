@@ -21,7 +21,7 @@ In this sample we will show you how to query your data lake through serverless s
 2. Lambda to generate the presign URL and post the result to callback URL
     ```
     {
-        "State": {
+        "Status": {
             "CompletionDateTime": 1645062487295,
             "State": "SUCCEEDED | FAILED | CANCELLED",
             "SubmissionDateTime": 1645062485193
