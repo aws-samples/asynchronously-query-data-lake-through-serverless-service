@@ -14,33 +14,37 @@ def lambda_handler(event, context):
     file=event['AthenaResult']['QueryExecution']['ResultConfiguration']['OutputLocation']
     status=event['AthenaResult']['QueryExecution']['Status']
     
-    obj_array=file.split('/')
-    bucket=file.split('/')[2]
-    
-    obj=''
-    for i in range(len(obj_array)):
-        if (i>2):
-            obj=obj+'/'+obj_array[i]
-    
-    object=obj[1:]
-
-    print('Bucket: {}'.format(bucket))
-    print('Object: {}'.format(object))
-    
-    print('s3 presign url for downloading query result: ')
-    
-    presignedUrl_expiration_time=3600
-    presigned_url=create_presigned_url(bucket,object,presignedUrl_expiration_time)
-    
-    print(presigned_url)
-    
     response={}
+    if status['State'] == 'SUCCEEDED':
+        obj_array=file.split('/')
+        bucket=file.split('/')[2]
+        
+        obj=''
+        for i in range(len(obj_array)):
+            if (i>2):
+                obj=obj+'/'+obj_array[i]
+        
+        object=obj[1:]
+
+        print('Bucket: {}'.format(bucket))
+        print('Object: {}'.format(object))
+        
+        print('s3 presign url for downloading query result: ')
+        
+        presignedUrl_expiration_time=3600
+        presigned_url=create_presigned_url(bucket,object,presignedUrl_expiration_time)
+        
+        print(presigned_url)
+
+        tmp={}
+        response['QueryResult']=tmp
+        response['QueryResult']['PresignedUrl']=presigned_url
+        response['QueryResult']['ExpiredIn']=presignedUrl_expiration_time
+    else:
+        # TODO add detail behavior to handle FAILED and CANCELLED query execution
+        print(status)
 
     response['Status']=status
-    tmp={}
-    response['QueryResult']=tmp
-    response['QueryResult']['PresignedUrl']=presigned_url
-    response['QueryResult']['ExpiredIn']=presignedUrl_expiration_time
     print(response)
     
     r = requests.post(callback_url, data=json.dumps(response))
