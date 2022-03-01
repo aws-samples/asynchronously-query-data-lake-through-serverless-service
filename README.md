@@ -114,6 +114,7 @@ You can follow the guide as following:
         ]
     }
     ```
+    * Use AWS IAM to have API Gateway verify signature on request. You can find detail information in our [iam-authentication-api-gateway](https://aws.amazon.com/premiumsupport/knowledge-center/iam-authentication-api-gateway/) page.
 * Test it with Postman and provide IAM key and secret which with API Gateway permission in AWS signature.
 
 

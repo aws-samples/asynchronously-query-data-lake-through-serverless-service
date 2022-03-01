@@ -37,6 +37,14 @@
       }
     }
   },
+  "securityDefinitions" : {
+    "sigv4" : {
+      "type" : "apiKey",
+      "name" : "Authorization",
+      "in" : "header",
+      "x-amazon-apigateway-authtype" : "awsSigv4"
+    }
+  },
   "definitions" : {
     "Empty" : {
       "type" : "object",
