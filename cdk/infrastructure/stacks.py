@@ -32,6 +32,7 @@ class AsyncQueryAthenaStack(Stack):
                 'REGION': self._region,
                 'ACCOUNT_ID': self._account_id
             },
+            role=self._create_lambda_exec_role(),
         )
 
         #submit the query and wait for the results
@@ -176,3 +177,16 @@ class AsyncQueryAthenaStack(Stack):
         )
         return _role
 
+    def _create_lambda_exec_role(self):
+        _role = _iam.Role(
+            self, 'LambdaExecRole',
+            assumed_by=_iam.ServicePrincipal('lambda.amazonaws.com')
+        )
+
+        _role.add_managed_policy(
+            _iam.ManagedPolicy.from_managed_policy_arn(
+                self, 'AWSLambdaExecutePolicy',
+                'arn:aws:iam::aws:policy/AWSLambdaExecute'
+            )
+        )
+        return _role
